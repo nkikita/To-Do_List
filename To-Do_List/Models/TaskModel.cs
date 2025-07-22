@@ -29,24 +29,20 @@ namespace To_Do_List.Models
 
     public class TaskModel : INotifyPropertyChanged
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        
         public Guid Id { get; set; } = Guid.NewGuid();
         public string? Title { get; set; }
         public string? Description { get; set; }
-        public ObservableCollection<MyTaskStatus> Status { get; set; } = new();
+        public ObservableCollection<MyTaskStatus> Status { get; set; } = new(); //выбранные статусы
         public string StatusString
         {
-            get => string.Join(", ", Status.Select(s => Helpers.TaskStatusValues.GetDescription(s)));
+            get => string.Join(", ", Status.Select(s => Helpers.TaskStatusValues.GetDescription(s))); //статусы переведенные в стрроку
         }
         public bool IsCompleted => Status.Contains(MyTaskStatus.Completed);
 
-        public bool Hidden { get; set; }
+        public bool Hidden { get; set; }//идентификатор для скрытия
 
-        private bool _hiddenas;
+        private bool _hiddenas;// Внутреннее поле для свойства Hiddenas
         public bool Hiddenas
         {
             get => _hiddenas;
@@ -60,20 +56,26 @@ namespace To_Do_List.Models
                     if (_hiddenas)
                     {
                         Hidden = true;
-                        if (!Status.Contains(MyTaskStatus.Completed))
+                        if (!Status.Contains(MyTaskStatus.Completed))// Если статус "Завершена" отсутствует, добавляем его
                             Status.Add(MyTaskStatus.Completed);
                         
                     }
-                    else
+                    else// Если Hiddenas установлен в false
                     {
                         Hidden = false;
-                        Status.Remove(MyTaskStatus.Completed);
+                        Status.Remove(MyTaskStatus.Completed); // Удаляем статус "Завершена" из коллекции статусов
                     }
 
-                    MainViewModel.Instance?.ApplyFilter(); //
+                    MainViewModel.Instance?.ApplyFilter(); //Вызов метода фильтрации задач в главной модели 
                 }
             }
         }
 
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

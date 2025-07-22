@@ -9,11 +9,11 @@ namespace To_Do_List.Views
     {
         public string TitleText { get; set; }
         public string DescriptionText { get; set; }
-        public ObservableCollection<EnumItem<MyTaskStatus>> NewTaskStatus { get; set; } = new();
+        public ObservableCollection<EnumItem<MyTaskStatus>> NewTaskStatus { get; set; } = new();  // Коллекция возможных статусов задачи, которую можно выбрать в UI
 
         private readonly TaskModel _originalTask;
 
-        public EditTaskWindow(TaskModel task)
+        public EditTaskWindow(TaskModel task)// Конструктор окна, принимает задачу и инициализирует поля
         {
             InitializeComponent();
             _originalTask = task;
@@ -21,7 +21,7 @@ namespace To_Do_List.Views
             DescriptionText = task.Description;
             DataContext = this;
         }
-
+        // Обработчик кнопки "Сохранить"
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             _originalTask.Title = TitleText;
@@ -34,7 +34,7 @@ namespace To_Do_List.Views
             DialogResult = true;
             Close();
         }
-
+        // Обработчик кнопки "Отмена"
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = false;

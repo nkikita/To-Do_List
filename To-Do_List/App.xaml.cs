@@ -15,13 +15,18 @@ namespace To_Do_List
             base.OnStartup(e);
 
             var storage = new JsonTaskStorage();
-            var viewModel = new MainViewModel(storage);
+            var filterService = new TaskFilterService();
+            var creationService = new TaskCreationService();
+
+            var viewModel = new MainViewModel(storage, filterService, creationService);
+
             var window = new MainWindow
             {
                 DataContext = viewModel
             };
             window.Show();
         }
+
     }
 
 }

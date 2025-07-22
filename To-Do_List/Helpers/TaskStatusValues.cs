@@ -12,7 +12,7 @@ namespace To_Do_List.Helpers
         public T Value { get; set; }
         public string Description { get; set; }
     }
-
+    // Утилитный класс для получения описаний статусов задач из enum MyTaskStatus
     public static class TaskStatusValues
     {
         public static List<EnumItem<MyTaskStatus>> All =>
@@ -24,7 +24,7 @@ namespace To_Do_List.Helpers
                     Description = GetDescription(value)
                 })
                 .ToList();
-
+        // Метод, получающий строку из атрибута [Description(...)] для значения enum
         public static string GetDescription(Enum value)
         {
             var field = value.GetType().GetField(value.ToString());
