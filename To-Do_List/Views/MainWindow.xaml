@@ -1,0 +1,240 @@
+﻿<Window x:Class="To_Do_List.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:helpers="clr-namespace:To_Do_List.Helpers"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        mc:Ignorable="d"
+        Title="Task Manager" Height="600" Width="900"
+        Background="#f0f2f5"
+        FontFamily="Segoe UI" FontSize="14">
+
+    <Window.Resources>
+        <helpers:BooleanInverterConverter x:Key="InvertBool"/>
+
+        <!-- Стиль для кнопок фильтра -->
+        <Style x:Key="FilterButtonStyle" TargetType="Button">
+            <Setter Property="Margin" Value="0 0 0 8"/>
+            <Setter Property="Padding" Value="8 5"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="#bbb"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="#333"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#dde5f0"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#c5d1e8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="TaskCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="#d9f0d9"/>
+            <!-- светло-зеленый по умолчанию -->
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="Margin" Value="0 5 0 5"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#aaa" BlurRadius="6" ShadowDepth="2" Opacity="0.15"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsCompleted}" Value="True">
+                    <Setter Property="Background" Value="#f8d7da"/>
+                    <!-- светло-красный фон -->
+                    <Setter Property="BorderBrush" Value="#f5c6cb"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsCompleted}" Value="False">
+                    <Setter Property="Background" Value="#d9f0d9"/>
+                    <!-- светло-зеленый -->
+                    <Setter Property="BorderBrush" Value="#c3e6cb"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Стиль для активной кнопки фильтра -->
+        <Style x:Key="FilterButtonActiveStyle" TargetType="Button" BasedOn="{StaticResource FilterButtonStyle}">
+            <Setter Property="Background" Value="#3b82f6"/>
+            <Setter Property="BorderBrush" Value="#3b82f6"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+
+        <!-- Стиль для кнопок действия задачи -->
+        <Style x:Key="TaskActionButton" TargetType="Button">
+            <Setter Property="Width" Value="36"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Margin" Value="0 0 5 0"/>
+            <Setter Property="Background" Value="#e0e0e0"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#444"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="4" >
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#c7d0db"/>
+                                <Setter Property="Foreground" Value="#222"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#aeb8c3"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Стиль для списка задач (карточки) -->
+       
+    </Window.Resources>
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Панель создания новой задачи -->
+        <StackPanel Orientation="Horizontal" Margin="0 0 0 15" HorizontalAlignment="Left" VerticalAlignment="Center" >
+
+            <xctk:WatermarkTextBox
+                Width="220"
+                MaxLength="30"
+                Margin="0 0 10 0"
+                Watermark="Введите название задачи..."
+                Text="{Binding NewTaskTitle, UpdateSourceTrigger=PropertyChanged}" />
+
+            <xctk:WatermarkTextBox
+                Width="300"
+                MaxLength="200"
+                Margin="0 0 10 0"
+                Watermark="Введите описание задачи..."
+                Text="{Binding NewTaskDescription, UpdateSourceTrigger=PropertyChanged}" />
+
+            <xctk:CheckComboBox
+                Width="200"
+                ItemsSource="{x:Static helpers:TaskStatusValues.All}"
+                DisplayMemberPath="Description"
+                SelectedItemsOverride="{Binding NewTaskStatus, Mode=TwoWay}"
+                Margin="0 0 10 0" />
+
+            <Button Content="Добавить" Command="{Binding AddCommand}" Width="100" Height="30"
+                    Background="#3b82f6" Foreground="White" FontWeight="Bold" Cursor="Hand"
+                    BorderThickness="0" 
+                    >
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource TaskActionButton}">
+                        <Setter Property="Background" Value="#3b82f6"/>
+                        <Setter Property="Foreground" Value="White"/>
+                        <Setter Property="Width" Value="100"/>
+                        <Setter Property="Height" Value="30"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
+                        <Setter Property="Cursor" Value="Hand"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#2563eb"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#1e40af"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </StackPanel>
+
+        <!-- Основной контент -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="180"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Фильтры -->
+            <StackPanel Grid.Column="0" Background="White"  
+                        Margin="0 0 15 0" >
+                <TextBlock Text="Фильтр по статусу:" FontWeight="Bold" Margin="0 0 0 10" FontSize="16"/>
+                <Button Style="{StaticResource FilterButtonStyle}" 
+                        Command="{Binding FilterCommand}" CommandParameter="">
+                    Все
+                </Button>
+                <Button Style="{StaticResource FilterButtonStyle}" 
+                        Command="{Binding FilterCommand}" CommandParameter="New">
+                    Новая задача
+                </Button>
+                <Button Style="{StaticResource FilterButtonStyle}" 
+                        Command="{Binding FilterCommand}" CommandParameter="InProgress">
+                    В работе
+                </Button>
+                <Button Style="{StaticResource FilterButtonStyle}" 
+                        Command="{Binding FilterCommand}" CommandParameter="Stoped">
+                    Приостановленная
+                </Button>
+                <CheckBox Content="Завершенные" IsChecked="{Binding IsCompletedChecked, Mode=TwoWay}" Margin="0 10 0 0"
+                          FontWeight="SemiBold" Cursor="Hand" />
+            </StackPanel>
+
+            <!-- Список задач -->
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Tasks}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource TaskCardStyle}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="120"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Title}" FontWeight="Bold" FontSize="16" TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Margin="0 5 0 5" Foreground="#555"/>
+                                        <TextBlock Text="{Binding StatusString}" FontStyle="Italic" Foreground="#888" />
+                                        <CheckBox Content="Завершить" IsChecked="{Binding Hiddenas, Mode=TwoWay}" Margin="0 10 0 0" />
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0 0 0 0">
+                                        <Button Content="✏️" ToolTip="Редактировать"
+                                                Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource TaskActionButton}"/>
+                                        <Button Content="❌" ToolTip="Удалить"
+                                                Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource TaskActionButton}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Window>
